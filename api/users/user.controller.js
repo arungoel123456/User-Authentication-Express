@@ -14,8 +14,7 @@ module.exports = {
     const body = req.body;
     // const salt = genSaltSync(10);
     // body.password = hashSync(body.password, salt);
-    console.log("request", req);
-    console.log("body :", body);
+
     create(body, (err, results) => {
       if (err) {
         console.log(err);
@@ -23,9 +22,19 @@ module.exports = {
           success: 0,
           message: "Database Connection error",
         });
+      }
+      if (results == null) {
+        return res.json({
+          success: 0,
+          message: "User already exists",
+        });
       } else {
+        const jsontoken = sign({ result: results }, "key", {
+          expiresIn: "1h",
+        });
         return res.status(200).json({
           success: 1,
+          token: jsontoken,
           data: results,
         });
       }
@@ -34,7 +43,7 @@ module.exports = {
 
   getUserByUserId: (req, res) => {
     const id = req.params.id;
-    console.log("id : ", id);
+    // console.log("id : ", id);
     getUserById(id, (err, result) => {
       if (err) {
         console.log(err);
@@ -126,6 +135,7 @@ module.exports = {
 
       if (result) {
         results.password = undefined;
+        console.log(results);
         const jsontoken = sign({ result: results }, "key", {
           expiresIn: "1h",
         });

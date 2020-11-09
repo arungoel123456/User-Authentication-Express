@@ -3,7 +3,22 @@ const mysqlConnection = require("../../config/connection");
 
 module.exports = {
   create: (data, callback) => {
-    console.log("data : ", data);
+    // console.log("data : ", data);
+    mysqlConnection.query(
+      `select * from registration where email = ? `,
+      [data.email],
+      (error, results, fields) => {
+        if (error) {
+          return callback(error);
+        } else {
+          if (results.length != 0) {
+            console.log("Already exist");
+            return callback(null, null);
+          }
+        }
+      }
+    );
+
     mysqlConnection.query(
       ` insert into registration(firstName , lastName , email, password , number) values(?,?,?,?,?) `,
       [data.firstName, data.lastName, data.email, data.password, data.number],
@@ -11,6 +26,7 @@ module.exports = {
         if (error) {
           return callback(error);
         }
+        console.log(results);
         return callback(null, results);
       }
     );
@@ -88,6 +104,7 @@ module.exports = {
         if (error) {
           return callback(error);
         } else {
+          console.log("Results: ", results);
           return callback(null, results[0]);
         }
       }
